@@ -1,5 +1,5 @@
 // pages/ShopPage.jsx
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronUp } from "lucide-react";
 import FilterBar from "../components/products/FilterBar";
 import ProductGrid from "../components/products/ProductGrid";
@@ -59,24 +59,39 @@ export default function ShopPage() {
     return () => clearTimeout(searchTimer.current);
   }, [filters.search]);
 
-  // ── Reset al cambiar categoría o búsqueda ────────────────────────────────
-  const prevCatRef    = useRef(filters.categoryId);
-  const prevSearchRef = useRef(debouncedSearch);
-  const prevSortRef   = useRef(filters.sort);
+  // ── Debounce precio (evitar requests en cada tick del slider) ─────────────
+  const maxPriceTimer = useRef(null);
+  const [debouncedMaxPrice, setDebouncedMaxPrice] = useState(filters.maxPrice);
 
   useEffect(() => {
-    const catChanged    = filters.categoryId !== prevCatRef.current;
-    const searchChanged = debouncedSearch    !== prevSearchRef.current;
-    const sortChanged   = filters.sort       !== prevSortRef.current;
-    prevCatRef.current    = filters.categoryId;
-    prevSearchRef.current = debouncedSearch;
-    prevSortRef.current   = filters.sort;
+    clearTimeout(maxPriceTimer.current);
+    maxPriceTimer.current = setTimeout(() => {
+      setDebouncedMaxPrice(filters.maxPrice);
+    }, 400);
+    return () => clearTimeout(maxPriceTimer.current);
+  }, [filters.maxPrice]);
 
-    if (catChanged || searchChanged || sortChanged) {
+  // ── Reset al cambiar categoría, búsqueda, orden o precio ─────────────────
+  const prevCatRef      = useRef(filters.categoryId);
+  const prevSearchRef   = useRef(debouncedSearch);
+  const prevSortRef     = useRef(filters.sort);
+  const prevMaxPriceRef = useRef(debouncedMaxPrice);
+
+  useEffect(() => {
+    const catChanged      = filters.categoryId !== prevCatRef.current;
+    const searchChanged   = debouncedSearch    !== prevSearchRef.current;
+    const sortChanged     = filters.sort       !== prevSortRef.current;
+    const maxPriceChanged = debouncedMaxPrice  !== prevMaxPriceRef.current;
+    prevCatRef.current      = filters.categoryId;
+    prevSearchRef.current   = debouncedSearch;
+    prevSortRef.current     = filters.sort;
+    prevMaxPriceRef.current = debouncedMaxPrice;
+
+    if (catChanged || searchChanged || sortChanged || maxPriceChanged) {
       setOffset(0);
       setProducts([]);
     }
-  }, [filters.categoryId, debouncedSearch, filters.sort]);
+  }, [filters.categoryId, debouncedSearch, filters.sort, debouncedMaxPrice]);
 
   // ── Fetch principal ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -91,6 +106,7 @@ export default function ShopPage() {
       const params = new URLSearchParams({ limit: PAGE_SIZE, offset, negocio_id: NEGOCIO_ID });
       if (filters.categoryId) params.set("category_id", filters.categoryId);
       if (filters.sort && filters.sort !== "default") params.set("sort", filters.sort);
+      if (debouncedMaxPrice < MAX_PRICE) params.set("max_price", debouncedMaxPrice);
       url = `${API_URL}/api/products?${params}`;
     }
 
@@ -114,15 +130,7 @@ export default function ShopPage() {
       .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => { cancelled = true; };
-  }, [debouncedSearch, filters.categoryId, filters.sort, offset]);
-
-  // ── Filtro local de precio (el ordenamiento ya viene del backend) ─────────
-  const filtered = useMemo(() => {
-    if (filters.maxPrice < MAX_PRICE) {
-      return products.filter((p) => p.price <= filters.maxPrice);
-    }
-    return products;
-  }, [products, filters.maxPrice]);
+  }, [debouncedSearch, filters.categoryId, filters.sort, debouncedMaxPrice, offset]);
 
   return (
     <main className="shop-main">
@@ -144,12 +152,12 @@ export default function ShopPage() {
           ) : error ? (
             <span className="results-error">⚠ {error}</span>
           ) : (
-            <span>{filtered.length} productos encontrados</span>
+            <span>{products.length} productos encontrados</span>
           )}
         </div>
 
         <ProductGrid
-          products={filtered}
+          products={products}
           loading={loading && products.length === 0}
           onNeedLogin={() => setShowAuthModal(true)}
         />
