@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 
 const AuthContext = createContext();
 
-const API_URL = import.meta.env.VITE_API_URL ?? "https://oncepuntos.duckdns.org";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 export function AuthProvider({ children }) {
   const [user, setUser]         = useState(null);       // { id, email, name }
