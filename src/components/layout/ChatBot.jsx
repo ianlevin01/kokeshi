@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Bot, Sparkles } from "lucide-react";
 
-const API_URL    = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+const API_URL    = import.meta.env.VITE_API_URL ?? "https://oncepuntos.duckdns.org";
 
 function renderMarkdown(text) {
   let html = text

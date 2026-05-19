@@ -1520,29 +1520,80 @@ html { scrollbar-color: rgba(0,0,0,0.32) rgba(0,0,0,0.06); scrollbar-width: thin
   color: var(--ink-muted); font-size: 14px;
 }
 
+/* ─── RESPONSIVE GRID BREAKPOINTS ───────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .product-grid { grid-template-columns: repeat(4, 1fr); gap: 22px; }
+}
+@media (max-width: 800px) {
+  .product-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+}
+
 /* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .header-inner { padding: 0 16px; }
-  .shop-content { padding: 24px 16px 60px; }
-  .filter-row { flex-direction: column; align-items: stretch; }
+  /* Header */
+  .header-inner { padding: 0 14px; }
+  .topbar-item:first-child { display: none; }
+  .topbar-inner { justify-content: center; padding: 7px 16px; }
+  .cart-label { display: none; }
+  .cart-btn { padding: 10px 14px; gap: 6px; }
+  .user-name-label { display: none; }
+  .login-btn span { display: none; }
+  .login-btn { padding: 9px 12px; }
+
+  /* Shop layout */
+  .shop-content { padding: 20px 12px 60px; }
+
+  /* FilterBar */
+  .filterbar { padding: 14px 16px; margin-bottom: 20px; }
+  .filter-row { flex-direction: column; align-items: stretch; gap: 10px; }
+  .cat-trigger { min-width: 0; width: 100%; }
   .price-filter { min-width: 0; }
-  .product-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+  /* Product grid: 2 columnas */
+  .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+  /* Product card: cuerpo más compacto */
+  .product-body { padding: 10px 12px 0; }
+  .product-footer {
+    padding: 10px 0 12px;
+    margin-left: -12px; margin-right: -12px;
+    padding-left: 12px; padding-right: 12px;
+  }
+  /* En 2 columnas el espacio es ~150 px: apilamos qty y botón */
+  .product-actions { flex-direction: column; gap: 6px; align-items: stretch; }
+  .qty-control { justify-content: center; }
+  /* Touch targets mínimos 44 px */
+  .qty-btn { min-width: 40px; min-height: 40px; }
+  .add-btn { padding: 10px 12px; }
+
+  /* Checkout */
   .checkout-page { padding: 24px 16px 60px; }
   .form-row { grid-template-columns: 1fr; }
+
+  /* Misc */
   .chat-window { width: calc(100vw - 40px); }
-  .user-name-label { display: none; }
-  .login-btn span  { display: none; }
-  .login-btn { padding: 9px 12px; }
+  .chatbot-wrapper { right: 16px; bottom: 20px; }
+  .scroll-top-btn { right: 16px; }
   .auth-modal { max-width: 100%; }
   .favorites-main { padding: 24px 16px 60px; }
   .favorites-title { font-size: 22px; }
 }
+
+/* 1 columna: restaurar acciones en fila (hay espacio de sobra) */
 @media (max-width: 400px) {
   .product-grid { grid-template-columns: 1fr; }
+  .product-actions { flex-direction: row; align-items: center; gap: 8px; }
+  .qty-control { justify-content: flex-start; }
   .auth-row-2 { grid-template-columns: 1fr; }
 }
 
-/* ─── MOBILE: elimina backdrop-filter y blur pesado para evitar pantalla en blanco al abrir teclado ── */
+/* ─── TOUCH: elementos hover-only siempre visibles ──────────────────────── */
+@media (hover: none) {
+  .fav-btn { opacity: 1 !important; pointer-events: auto !important; }
+  .slide-arrow { opacity: 0.80; pointer-events: auto; }
+}
+
+/* ─── TABLET / MOBILE: elimina backdrop-filter pesado ───────────────────── */
 @media (max-width: 768px) {
   .header {
     backdrop-filter: none;
@@ -1554,6 +1605,8 @@ html { scrollbar-color: rgba(0,0,0,0.32) rgba(0,0,0,0.06); scrollbar-width: thin
     -webkit-backdrop-filter: none;
     background: #ffffff;
   }
+  /* Topbar: reducir en tablets */
+  .topbar-inner { padding: 7px 20px; }
 }
 
 /* ─── MOTION PREFERENCES ─────────────────────────────────────────────────── */
